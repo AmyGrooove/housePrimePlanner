@@ -11,3 +11,4 @@ export { StatusBadge } from "./status-badge";
 export { WorkspaceNavigation } from "./workspace-navigation";
 export { ZoomControls } from "./zoom-controls";
 export { UndoRedoControls } from "./undo-redo-controls";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";

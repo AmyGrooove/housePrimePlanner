@@ -30,6 +30,10 @@ import {
   SelectValue,
   WorkspaceNavigation,
   ZoomControls,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 } from "@/shared/ui";
 
 type RoomBoardProps = {
@@ -317,74 +321,86 @@ export function RoomBoard({
               </div>
             </div>
             <div className="modal-content">
-              <label className="field">
-                <span>Название</span>
-                <input
-                  onChange={(event) => onRoomNameChange(event.target.value)}
-                  placeholder="Например: Гостиная"
-                  type="text"
-                  value={roomName}
-                />
-              </label>
-              {walls.length > 0 && (
-                <div className="room-stats">
-                  <div className="room-stat">
-                    <span className="room-stat-label">Площадь:</span>
-                    <span className="room-stat-value">{calculatedArea} м²</span>
-                  </div>
-                </div>
-              )}
-              <label className="field">
-                <span>Иконка</span>
-                <Select onValueChange={(value) => onRoomIconChange(value as RoomIconName)} value={roomIcon}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {roomIcons.map((icon) => (
-                        <SelectItem key={icon} value={icon}>
-                          <span className="type-option">
-                            <RoomIcon icon={icon} />
-                            {roomIconLabels[icon]}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </label>
-              <label className="field">
-                <span>Шаг создания стен</span>
-                <Select
-                  onValueChange={(value) => onRoomWallMeasureIntervalChange(Number(value) as WallMeasureInterval)}
-                  value={String(roomWallMeasureInterval)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {([1, 5, 10, 15, 20] as WallMeasureInterval[]).map((interval) => (
-                        <SelectItem key={interval} value={String(interval)}>
-                          {interval}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </label>
-              <label className="field">
-                <span>Толщина новых стен</span>
-                <input
-                  inputMode="decimal"
-                  min="0"
-                  onBlur={onRoomDefaultWallThicknessCommit}
-                  onChange={(event) => onRoomDefaultWallThicknessChange(event.target.value)}
-                  type="text"
-                  value={roomDefaultWallThickness}
-                />
-              </label>
+              <Tabs defaultValue="main">
+                <TabsList>
+                  <TabsTrigger value="main">Основное</TabsTrigger>
+                  <TabsTrigger value="settings">Свойства</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="main">
+                  <label className="field">
+                    <span>Название</span>
+                    <input
+                      onChange={(event) => onRoomNameChange(event.target.value)}
+                      placeholder="Например: Гостиная"
+                      type="text"
+                      value={roomName}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Иконка</span>
+                    <Select onValueChange={(value) => onRoomIconChange(value as RoomIconName)} value={roomIcon}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {roomIcons.map((icon) => (
+                            <SelectItem key={icon} value={icon}>
+                              <span className="type-option">
+                                <RoomIcon icon={icon} />
+                                {roomIconLabels[icon]}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </label>
+                  {walls.length > 0 && (
+                    <div className="room-stats">
+                      <div className="room-stat">
+                        <span className="room-stat-label">Площадь:</span>
+                        <span className="room-stat-value">{calculatedArea} м²</span>
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="settings">
+                  <label className="field">
+                    <span>Шаг создания стен</span>
+                    <Select
+                      onValueChange={(value) => onRoomWallMeasureIntervalChange(Number(value) as WallMeasureInterval)}
+                      value={String(roomWallMeasureInterval)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {([1, 5, 10, 15, 20] as WallMeasureInterval[]).map((interval) => (
+                            <SelectItem key={interval} value={String(interval)}>
+                              {interval}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </label>
+                  <label className="field">
+                    <span>Толщина новых стен</span>
+                    <input
+                      inputMode="decimal"
+                      min="0"
+                      onBlur={onRoomDefaultWallThicknessCommit}
+                      onChange={(event) => onRoomDefaultWallThicknessChange(event.target.value)}
+                      type="text"
+                      value={roomDefaultWallThickness}
+                    />
+                  </label>
+                </TabsContent>
+              </Tabs>
             </div>
           </section>
         )}

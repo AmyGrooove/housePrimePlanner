@@ -628,7 +628,9 @@ export function App() {
       return;
     }
 
-    const nextPoint = constrainAndSnapWallEnd(roomDraftStart, rawPoint);
+    // Проверяем, пытается ли пользователь замкнуть контур
+    const nearestEndpoint = findNearestWallEndpoint(rawPoint);
+    const nextPoint = nearestEndpoint ?? constrainAndSnapWallEnd(roomDraftStart, rawPoint);
 
     if (distanceBetween(nextPoint, roomDraftStart) < 12) {
       setRoomError("Линия слишком короткая.");
