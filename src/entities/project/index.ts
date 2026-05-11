@@ -12,7 +12,7 @@ export {
 export { formatLength, lengthUnits, parseLength, unitConfig } from "./lib/length-unit";
 export { ObjectTypeIcon } from "./ui/object-type-icon";
 export { RoomIcon, roomIconLabels, roomIcons } from "./ui/room-icon";
-export { usePlannerStore } from "./model/store";
+export { usePlannerStore, useSnapshot, useSetSnapshot, useUndo, useRedo, useCanUndo, useCanRedo } from "./model/store";
 export type {
   ApartmentProject,
   BudgetItem,

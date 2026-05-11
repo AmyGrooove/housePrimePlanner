@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import type { KeyboardEvent, MouseEvent, WheelEvent } from "react";
 import {
   constrainPoint,
@@ -11,6 +11,10 @@ import {
   unitConfig,
   wallLength,
   usePlannerStore,
+  useUndo,
+  useRedo,
+  useCanUndo,
+  useCanRedo,
   type LengthUnit,
   type ObjectParameterKey,
   type ObjectTypeId,
@@ -22,11 +26,14 @@ import {
   type RoomWallObject,
   type WallMeasureInterval,
 } from "@/entities/project";
+import { createObjectVariable } from "@/entities/project/lib/object-service";
+import { validateWalls, validateRoomName, validateNoIntersections } from "@/entities/project/lib/validators";
 import { ObjectVariableDialog } from "@/features/object-variable-editor";
 import { RoomBoard } from "@/features/room-board";
 import { RoomEditorDialog } from "@/features/room-editor";
 import { SettingsDialog } from "@/features/settings-panel";
-import { Button, ConfirmDialog } from "@/shared/ui";
+import { Button, ConfirmDialog, UndoRedoControls } from "@/shared/ui";
+import { useKeyboardShortcuts } from "@/shared/lib/use-keyboard-shortcuts";
 import {
   CanvasSurface,
   WorkspaceNavigation,
@@ -45,6 +52,10 @@ export function App() {
   );
   const snapshot = usePlannerStore((state) => state.present);
   const setSnapshot = usePlannerStore((state) => state.setSnapshot);
+  const undo = useUndo();
+  const redo = useRedo();
+  const canUndo = useCanUndo();
+  const canRedo = useCanRedo();
   const lengthUnit = snapshot.settings.lengthUnit;
   const selectedLengthUnit = unitConfig(lengthUnit);
   const defaultType = snapshot.objectTypes[0]?.id ?? "door";
@@ -88,8 +99,47 @@ export function App() {
   const [roomArea, setRoomArea] = useState("");
   const [roomFormError, setRoomFormError] = useState("");
   const previousLengthUnit = useRef(lengthUnit);
-  const selectedType = snapshot.objectTypes.find((type) => type.id === typeId) ?? snapshot.objectTypes[0];
-  const selectedRoomWall = roomWalls.find((wall) => wall.id === selectedRoomWallId) ?? null;
+
+  const selectedType = useMemo(
+    () => snapshot.objectTypes.find((type) => type.id === typeId) ?? snapshot.objectTypes[0],
+    [snapshot.objectTypes, typeId],
+  );
+
+  const selectedRoomWall = useMemo(
+    () => roomWalls.find((wall) => wall.id === selectedRoomWallId) ?? null,
+    [roomWalls, selectedRoomWallId],
+  );
+
+  const wallSnapStep = useCallback(() => {
+    return Math.max(1, newRoomWallMeasureInterval * selectedLengthUnit.multiplier);
+  }, [newRoomWallMeasureInterval, selectedLengthUnit.multiplier]);
+
+  const wallEndpoints = useMemo(() => {
+    return roomWalls.flatMap((wall) => [
+      { point: wall.start },
+      { point: wall.end },
+    ]);
+  }, [roomWalls]);
+
+  useKeyboardShortcuts({
+    "ctrl+z": undo,
+    "ctrl+y": redo,
+    "delete": () => {
+      if (selectedRoomWallId && roomBoardOpen) {
+        deleteSelectedWall();
+      } else if (deleteId) {
+        confirmDeleteVariable();
+      }
+    },
+    "escape": () => {
+      if (roomBoardOpen && roomDraftStart) {
+        setRoomDraftStart(null);
+        setRoomPreviewPoint(null);
+      } else if (formOpen) {
+        closeVariableForm();
+      }
+    },
+  });
 
   const setZoom = (nextScale: number) => {
     setCanvasScale(Math.min(2.5, Math.max(0.35, nextScale)));
@@ -276,23 +326,6 @@ export function App() {
       return;
     }
 
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      setFormError("Укажите название объекта.");
-      return;
-    }
-
-    const hasSameName = snapshot.objectVariables.some(
-      (variable) =>
-        variable.id !== editingId && variable.name.trim().toLowerCase() === trimmedName.toLowerCase(),
-    );
-
-    if (hasSameName) {
-      setFormError("Объект с таким названием уже существует.");
-      return;
-    }
-
     const parameters: Partial<Record<ObjectParameterKey, number>> = {};
 
     for (const parameter of selectedType.parameters) {
@@ -306,24 +339,27 @@ export function App() {
       parameters[parameter.key] = parsed;
     }
 
-    const now = new Date().toISOString();
-    const nextVariable: ObjectVariable = {
-      id: editingId ?? createId("object"),
+    const result = createObjectVariable(
+      createId("object"),
       typeId,
-      name: trimmedName,
+      name,
       parameters,
-      createdAt:
-        snapshot.objectVariables.find((variable) => variable.id === editingId)?.createdAt ?? now,
-      updatedAt: now,
-    };
+      snapshot.objectVariables,
+      editingId ?? undefined,
+    );
+
+    if (!result.success) {
+      setFormError(result.error.message);
+      return;
+    }
 
     setSnapshot({
       ...snapshot,
       objectVariables: editingId
         ? snapshot.objectVariables.map((variable) =>
-            variable.id === editingId ? nextVariable : variable,
+            variable.id === editingId ? result.value : variable,
           )
-        : [...snapshot.objectVariables, nextVariable],
+        : [...snapshot.objectVariables, result.value],
     });
     resetForm(typeId);
     setFormOpen(false);
@@ -432,30 +468,22 @@ export function App() {
     return getBoardPointFromClient(event.clientX, event.clientY, bounds);
   };
 
-  const wallSnapStep = () => Math.max(1, newRoomWallMeasureInterval * selectedLengthUnit.multiplier);
-
-  const snapBoardPoint = (point: RoomBoundaryPoint): RoomBoundaryPoint => {
+  const snapBoardPoint = useCallback((point: RoomBoundaryPoint): RoomBoundaryPoint => {
     const step = wallSnapStep();
 
     return {
       x: Math.round(point.x / step) * step,
       y: Math.round(point.y / step) * step,
     };
-  };
+  }, [wallSnapStep]);
 
-  const wallEndpoints = () =>
-    roomWalls.flatMap((wall) => [
-      { point: wall.start },
-      { point: wall.end },
-    ]);
-
-  const findNearestWallEndpoint = (point: RoomBoundaryPoint) => {
-    const endpoints = wallEndpoints();
+  const findNearestWallEndpoint = useCallback((point: RoomBoundaryPoint) => {
+    const endpoints = wallEndpoints;
 
     return endpoints.find((endpoint) => distanceBetween(endpoint.point, point) <= 14)?.point ?? null;
-  };
+  }, [wallEndpoints]);
 
-  const constrainAndSnapWallEnd = (start: RoomBoundaryPoint, rawPoint: RoomBoundaryPoint) => {
+  const constrainAndSnapWallEnd = useCallback((start: RoomBoundaryPoint, rawPoint: RoomBoundaryPoint) => {
     const constrained = constrainPoint(start, rawPoint);
     const length = distanceBetween(start, constrained);
 
@@ -472,7 +500,7 @@ export function App() {
       x: Math.round(start.x + dx * snappedLength),
       y: Math.round(start.y + dy * snappedLength),
     };
-  };
+  }, [wallSnapStep]);
 
   const getBoardPointFromClient = (clientX: number, clientY: number, bounds: DOMRect): RoomBoundaryPoint => {
     return {
@@ -526,22 +554,29 @@ export function App() {
   };
 
   const saveRoomBoard = () => {
-    const trimmedName = newRoomName.trim();
-
-    if (!trimmedName) {
-      setRoomError("Укажите название комнаты.");
+    const nameResult = validateRoomName(newRoomName);
+    if (!nameResult.success) {
+      setRoomError(nameResult.error.message);
       setRoomActivePanel("roomDetails");
       return;
     }
 
-    if (roomWalls.length === 0) {
-      setRoomError("Создайте хотя бы одну стену.");
+    const wallsResult = validateWalls(roomWalls);
+    if (!wallsResult.success) {
+      setRoomError(wallsResult.error.message);
+      setRoomModeTool("rooms");
+      return;
+    }
+
+    const intersectionResult = validateNoIntersections(roomWalls);
+    if (!intersectionResult.success) {
+      setRoomError(intersectionResult.error.message);
       setRoomModeTool("rooms");
       return;
     }
 
     const roomPayload = {
-      name: trimmedName,
+      name: nameResult.value,
       area: roomAreaFromWalls(roomWalls),
       icon: newRoomIcon,
       wallMeasureInterval: newRoomWallMeasureInterval,
@@ -809,6 +844,13 @@ export function App() {
         hiddenPanels={["roomDetails"]}
         onPanelChange={setActivePanel}
         onSettingsOpen={() => setSettingsOpen(true)}
+      />
+
+      <UndoRedoControls
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
       />
 
       <ZoomControls

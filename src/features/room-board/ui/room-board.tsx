@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { MouseEvent, ReactNode, WheelEvent } from "react";
+import { useMemo } from "react";
 import {
   formatLength,
   RoomIcon,
@@ -15,6 +16,7 @@ import {
   type RoomWallObject,
   type WallMeasureInterval,
 } from "@/entities/project";
+import { roomAreaFromWalls } from "@/entities/project/lib/geometry-service";
 import type { WorkspacePanel, WorkspaceTool } from "@/shared/config/workspace";
 import {
   ConfirmDialog,
@@ -146,6 +148,14 @@ export function RoomBoard({
     { key: `${wall.id}-start`, point: wall.start },
     { key: `${wall.id}-end`, point: wall.end },
   ]);
+
+  const calculatedArea = useMemo(() => {
+    if (walls.length > 0) {
+      const areaMm2 = roomAreaFromWalls(walls) as number;
+      return (areaMm2 / 1_000_000).toFixed(2);
+    }
+    return "0.00";
+  }, [walls]);
 
   return (
     <DialogContent
@@ -316,6 +326,14 @@ export function RoomBoard({
                   value={roomName}
                 />
               </label>
+              {walls.length > 0 && (
+                <div className="room-stats">
+                  <div className="room-stat">
+                    <span className="room-stat-label">Площадь:</span>
+                    <span className="room-stat-value">{calculatedArea} м²</span>
+                  </div>
+                </div>
+              )}
               <label className="field">
                 <span>Иконка</span>
                 <Select onValueChange={(value) => onRoomIconChange(value as RoomIconName)} value={roomIcon}>
