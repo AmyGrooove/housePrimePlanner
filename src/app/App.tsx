@@ -43,7 +43,7 @@ export function App() {
   const [dragStart, setDragStart] = useState<{ x: number; y: number; originX: number; originY: number } | null>(
     null,
   );
-  const snapshot = usePlannerStore((state) => state.snapshot);
+  const snapshot = usePlannerStore((state) => state.present);
   const setSnapshot = usePlannerStore((state) => state.setSnapshot);
   const lengthUnit = snapshot.settings.lengthUnit;
   const selectedLengthUnit = unitConfig(lengthUnit);

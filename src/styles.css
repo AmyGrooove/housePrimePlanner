@@ -516,6 +516,55 @@ button {
   backdrop-filter: blur(16px);
 }
 
+.undo-redo-controls {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 60;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.help-icon {
+  color: var(--color-muted);
+  cursor: help;
+}
+
+.help-icon:hover {
+  color: var(--color-accent);
+}
+
+.room-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-md);
+}
+
+.room-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.room-stat-label {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.room-stat-value {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
 .room-line {
   stroke: #9ee5d8;
   stroke-linecap: round;

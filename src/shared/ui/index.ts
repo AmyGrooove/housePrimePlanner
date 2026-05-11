@@ -10,3 +10,4 @@ export { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 export { StatusBadge } from "./status-badge";
 export { WorkspaceNavigation } from "./workspace-navigation";
 export { ZoomControls } from "./zoom-controls";
+export { UndoRedoControls } from "./undo-redo-controls";
