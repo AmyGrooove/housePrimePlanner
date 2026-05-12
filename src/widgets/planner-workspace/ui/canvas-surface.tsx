@@ -1,9 +1,13 @@
-import type { MouseEvent, WheelEvent } from "react";
+import type { DragEvent, MouseEvent, ReactNode, WheelEvent } from "react";
 
 type CanvasSurfaceProps = {
   dragStart: { x: number; y: number; originX: number; originY: number } | null;
   offset: { x: number; y: number };
   scale: number;
+  children?: ReactNode;
+  onDragLeave?: () => void;
+  onDragOver?: (event: DragEvent<HTMLDivElement>) => void;
+  onDrop?: (event: DragEvent<HTMLDivElement>) => void;
   onMouseDown: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseMove: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
@@ -14,6 +18,10 @@ export function CanvasSurface({
   dragStart,
   offset,
   scale,
+  children,
+  onDragLeave,
+  onDragOver,
+  onDrop,
   onMouseDown,
   onMouseMove,
   onMouseUp,
@@ -24,6 +32,9 @@ export function CanvasSurface({
       className={`canvas-surface ${dragStart ? "canvas-surface-dragging" : ""}`}
       aria-label="Холст планировки"
       onMouseDown={onMouseDown}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       onMouseLeave={onMouseUp}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
@@ -36,6 +47,7 @@ export function CanvasSurface({
         }}
       >
         <div className="canvas-grid" />
+        {children}
       </div>
     </div>
   );

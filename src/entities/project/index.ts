@@ -3,6 +3,7 @@ export { createId } from "./lib/create-id";
 export {
   constrainPoint,
   distanceBetween,
+  orderConnectedWalls,
   polygonArea,
   projectPointToWall,
   roomAreaFromWalls,
@@ -30,6 +31,7 @@ export type {
   Room,
   RoomBoundaryPoint,
   RoomIconName,
+  RoomLayout,
   RoomStatus,
   RoomWall,
   RoomWallObject,

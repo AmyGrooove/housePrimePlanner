@@ -64,11 +64,21 @@ export interface Room {
   status: RoomStatus;
   notes: string;
   icon?: RoomIconName;
+  color?: string;
+  duplicateCount?: number;
+  layout?: RoomLayout;
+  layouts?: RoomLayout[];
   wallMeasureInterval?: WallMeasureInterval;
   defaultWallThickness?: number;
   boundary?: RoomBoundaryPoint[];
   walls?: RoomWall[];
   wallObjects?: RoomWallObject[];
+}
+
+export interface RoomLayout {
+  x: number;
+  y: number;
+  rotation?: number;
 }
 
 export interface RoomBoundaryPoint {

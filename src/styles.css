@@ -125,6 +125,19 @@ button {
   height: 100vh;
   overflow: hidden;
   background: #eef1ee;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.canvas-app * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.canvas-app input,
+.canvas-app textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .canvas-surface {
@@ -141,8 +154,8 @@ button {
 
 .canvas-plane {
   position: absolute;
-  inset: -200vh -200vw;
-  transform-origin: center;
+  inset: -3000vh -3000vw;
+  transform-origin: 0 0;
   background:
     linear-gradient(rgba(35, 45, 42, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(35, 45, 42, 0.08) 1px, transparent 1px),
@@ -159,6 +172,228 @@ button {
     linear-gradient(90deg, rgba(47, 111, 99, 0.13) 2px, transparent 2px);
   background-size: 160px 160px;
   opacity: 0.55;
+}
+
+.canvas-room,
+.canvas-room-shape {
+  position: absolute;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: center;
+}
+
+.canvas-room {
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(47, 111, 99, 0.72);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-ink);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.canvas-room small {
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.canvas-room-shape {
+  overflow: visible;
+}
+
+.canvas-room-wall {
+  stroke-linecap: round;
+}
+
+.canvas-room-fill {
+  stroke: none;
+}
+
+.canvas-room-door {
+  fill: #f6c343;
+  stroke: #1f2d2a;
+  stroke-width: 3;
+}
+
+.canvas-room-label,
+.canvas-room-area,
+.canvas-room-measure,
+.canvas-room-object text {
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: 0;
+  paint-order: stroke;
+  pointer-events: none;
+  stroke: rgba(255, 255, 255, 0.88);
+  stroke-width: 20px;
+  text-anchor: middle;
+}
+
+.canvas-room-area {
+  font-size: 60px;
+}
+
+.canvas-room-measure {
+  font-size: 48px;
+}
+
+.canvas-room-object rect {
+  fill: rgba(255, 255, 255, 0.9);
+  stroke: #1f2d2a;
+  stroke-width: 2;
+}
+
+.canvas-room-object-door rect {
+  fill: #f6c343;
+}
+
+.canvas-room-object-window rect {
+  fill: #9ee5d8;
+}
+
+.canvas-room-object text {
+  fill: #1f2d2a;
+  font-size: 44px;
+  text-anchor: middle;
+}
+
+.canvas-room-preview {
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.canvas-room-preview .canvas-room-wall,
+.canvas-room-preview.canvas-room {
+  border-color: #f6c343;
+  stroke: #f6c343;
+}
+
+.canvas-room-snapped .canvas-room-wall {
+  filter: drop-shadow(0 0 8px rgba(246, 195, 67, 0.9));
+}
+
+.canvas-room-selected {
+  filter: drop-shadow(0 0 12px rgba(246, 195, 67, 0.95));
+}
+
+.canvas-room-selected.canvas-room {
+  box-shadow: 0 0 0 4px rgba(246, 195, 67, 0.55), var(--shadow-soft);
+}
+
+.canvas-room-selected .canvas-room-wall {
+  stroke-width: 8;
+}
+
+.canvas-room-invalid .canvas-room-wall,
+.canvas-room-invalid.canvas-room {
+  border-color: #d94b4b;
+  stroke: #d94b4b;
+}
+
+.placed-room-panel {
+  width: min(320px, calc(100vw - 96px));
+}
+
+.placed-room-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+}
+
+.placed-room-preview div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.placed-room-preview strong,
+.placed-room-preview span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.placed-room-preview span {
+  color: var(--color-muted);
+  font-size: 0.86rem;
+}
+
+.area-summary {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.area-summary span {
+  color: var(--color-muted);
+  font-size: 0.86rem;
+}
+
+.area-summary strong {
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.placed-room-preview svg {
+  width: 22px;
+  height: 22px;
+}
+
+.room-color-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.room-color-option-swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(31, 45, 42, 0.18);
+  border-radius: 999px;
+}
+
+.canvas-room-rotate-slot {
+  overflow: visible;
+}
+
+.canvas-room-rotate,
+.canvas-room-rotate-right {
+  pointer-events: auto;
+}
+
+.canvas-room-rotate {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(31, 45, 42, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--color-accent-strong);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+
+.canvas-room-rotate svg {
+  width: 15px;
+  height: 15px;
+}
+
+.canvas-room-rotate-right {
+  position: absolute;
+  top: -15px;
+}
+
+.canvas-room-rotate-right {
+  right: -15px;
 }
 
 .floating-tabs {
@@ -453,11 +688,7 @@ button {
   height: 100%;
   min-height: 0;
   cursor: default;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    #17201e;
-  background-size: 32px 32px;
+  background: #17201e;
 }
 
 .room-drawing-board-draw {
@@ -523,6 +754,48 @@ button {
   z-index: 60;
   display: flex;
   gap: var(--space-2);
+}
+
+.undo-redo-controls.room-undo-redo-controls {
+  top: auto;
+  right: auto;
+  bottom: var(--space-4);
+  left: calc(50% + 70px);
+  z-index: 25;
+  align-items: center;
+  padding: var(--space-2);
+  border: 1px solid rgba(31, 45, 42, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+}
+
+.undo-redo-controls.room-undo-redo-controls button {
+  width: 42px;
+  min-height: 40px;
+  padding: 0;
+}
+
+.undo-redo-controls.layout-undo-redo-controls {
+  top: auto;
+  right: auto;
+  bottom: var(--space-4);
+  left: calc(50% + 38px);
+  z-index: 25;
+  align-items: center;
+  padding: var(--space-2);
+  border: 1px solid rgba(31, 45, 42, 0.12);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+}
+
+.undo-redo-controls.layout-undo-redo-controls button {
+  width: 42px;
+  min-height: 40px;
+  padding: 0;
 }
 
 .tooltip-wrapper {
@@ -655,14 +928,38 @@ button {
   fill: #f6f2ea;
   stroke: #2f6f63;
   stroke-width: 3;
+  cursor: grab;
 }
 
 .room-point-start {
   fill: #9ee5d8;
 }
 
+.unit-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.unit-input input {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+}
+
+.unit-input span {
+  padding: 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
 .room-wall-object {
-  pointer-events: none;
+  cursor: grab;
 }
 
 .room-wall-object rect {
@@ -671,11 +968,27 @@ button {
   stroke-width: 2;
 }
 
+.room-wall-object-selected rect {
+  stroke: #f6c343;
+  stroke-width: 4;
+}
+
 .room-wall-object text {
   fill: #18201f;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 800;
+  pointer-events: none;
   text-anchor: middle;
+}
+
+.room-wall-object-preview {
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.room-wall-object-preview rect {
+  fill: #9ee5d8;
+  stroke-dasharray: 8 5;
 }
 
 .room-properties-panel {
@@ -831,6 +1144,14 @@ button {
   padding: var(--space-3);
 }
 
+.room-tile[draggable="true"] {
+  cursor: grab;
+}
+
+.room-tile-placed {
+  opacity: 0.58;
+}
+
 .room-tile h3 {
   display: -webkit-box;
   margin: 0;
@@ -860,6 +1181,12 @@ button {
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 0.88rem;
+}
+
+.room-tile-area span {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .room-tile .tile-actions {
@@ -960,6 +1287,16 @@ button {
 .settings-list {
   display: grid;
   gap: var(--space-3);
+}
+
+.settings-clear-button {
+  border-color: rgba(168, 55, 55, 0.32);
+  color: var(--destructive);
+}
+
+.settings-clear-button:hover {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
 }
 
 .app-shell {
@@ -1281,6 +1618,20 @@ button {
 }
 
 .field input:focus {
+  border-color: var(--color-accent);
+  outline: 2px solid rgba(47, 111, 99, 0.16);
+}
+
+.field .unit-input input {
+  border: 0;
+  background: transparent;
+}
+
+.field .unit-input input:focus {
+  outline: 0;
+}
+
+.field .unit-input:focus-within {
   border-color: var(--color-accent);
   outline: 2px solid rgba(47, 111, 99, 0.16);
 }

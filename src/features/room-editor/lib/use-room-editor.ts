@@ -8,7 +8,7 @@ export const useRoomEditor = (lengthUnit: LengthUnit) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<RoomIconName>("living");
-  const [wallMeasureInterval, setWallMeasureInterval] = useState<WallMeasureInterval>(10);
+  const [wallMeasureInterval, setWallMeasureInterval] = useState<WallMeasureInterval>(5);
   const [defaultWallThickness, setDefaultWallThickness] = useState(120);
   const [defaultWallThicknessInput, setDefaultWallThicknessInput] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -19,7 +19,7 @@ export const useRoomEditor = (lengthUnit: LengthUnit) => {
     setEditingId(null);
     setName(`Комната ${roomNumber}`);
     setIcon("living");
-    setWallMeasureInterval(10);
+    setWallMeasureInterval(5);
     setDefaultWallThickness(120);
     setDefaultWallThicknessInput(formatLength(120, lengthUnit));
     setFormError("");
@@ -30,7 +30,7 @@ export const useRoomEditor = (lengthUnit: LengthUnit) => {
     setEditingId(room.id);
     setName(room.name);
     setIcon(room.icon ?? "living");
-    setWallMeasureInterval(room.wallMeasureInterval ?? 10);
+    setWallMeasureInterval(room.wallMeasureInterval ?? 5);
     setDefaultWallThickness(room.defaultWallThickness ?? 120);
     setDefaultWallThicknessInput(formatLength(room.defaultWallThickness ?? 120, lengthUnit));
     setFormError("");
@@ -41,7 +41,7 @@ export const useRoomEditor = (lengthUnit: LengthUnit) => {
     setEditingId(null);
     setName("");
     setIcon("living");
-    setWallMeasureInterval(10);
+    setWallMeasureInterval(5);
     setDefaultWallThickness(120);
     setDefaultWallThicknessInput("");
     setFormError("");

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { lengthUnits, type LengthUnit } from "@/entities/project";
 import {
   Button,
@@ -14,12 +14,14 @@ import {
 type SettingsDialogProps = {
   lengthUnit: LengthUnit;
   onChangeUnit: (unit: LengthUnit) => void;
+  onClearAll: () => void;
   onClose: () => void;
 };
 
 export function SettingsDialog({
   lengthUnit,
   onChangeUnit,
+  onClearAll,
   onClose,
 }: SettingsDialogProps) {
   return (
@@ -62,6 +64,16 @@ export function SettingsDialog({
                 </SelectGroup>
               </SelectContent>
             </Select>
+          </div>
+          <div className="settings-row">
+            <div>
+              <p className="row-title">Очистить все</p>
+              <p className="muted">Удаляет комнаты, объекты и настройки проекта.</p>
+            </div>
+            <Button className="settings-clear-button" onClick={onClearAll} type="button" variant="outline">
+              <Trash2 />
+              Очистить
+            </Button>
           </div>
         </div>
       </div>

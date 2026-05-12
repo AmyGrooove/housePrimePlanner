@@ -31,7 +31,7 @@ export function polygonArea(points: RoomBoundaryPoint[]) {
     return sum + point.x * next.y - next.x * point.y;
   }, 0);
 
-  return Math.round(Math.abs(doubleArea) / 200) / 10;
+  return Math.round((Math.abs(doubleArea) / 2_000_000) * 100) / 100;
 }
 
 export function wallLength(wall: Pick<RoomWall, "start" | "end">) {
@@ -58,17 +58,44 @@ export function projectPointToWall(point: RoomBoundaryPoint, wall: Pick<RoomWall
   return Math.min(1, Math.max(0, rawPosition));
 }
 
-export function roomAreaFromWalls(walls: RoomWall[]) {
+export function orderConnectedWalls(walls: RoomWall[]) {
   if (walls.length < 3) {
-    return 0;
+    return [];
   }
 
-  const points = walls.map((wall) => wall.start);
-  const closes = distanceBetween(walls[walls.length - 1].end, walls[0].start) <= 2;
-  const chains = walls.every((wall, index) => {
-    const next = walls[(index + 1) % walls.length];
-    return index === walls.length - 1 ? closes : distanceBetween(wall.end, next.start) <= 2;
-  });
+  const isSamePoint = (first: RoomBoundaryPoint, second: RoomBoundaryPoint) => distanceBetween(first, second) <= 2;
+  const orderedWalls = [walls[0]];
+  const unusedWalls = walls.slice(1);
 
-  return closes && chains ? polygonArea(points) : 0;
+  while (unusedWalls.length > 0) {
+    const currentEnd = orderedWalls[orderedWalls.length - 1].end;
+    const nextIndex = unusedWalls.findIndex(
+      (wall) => isSamePoint(wall.start, currentEnd) || isSamePoint(wall.end, currentEnd),
+    );
+
+    if (nextIndex === -1) {
+      return [];
+    }
+
+    const [nextWall] = unusedWalls.splice(nextIndex, 1);
+    orderedWalls.push(
+      isSamePoint(nextWall.start, currentEnd)
+        ? nextWall
+        : {
+            ...nextWall,
+            start: nextWall.end,
+            end: nextWall.start,
+          },
+    );
+  }
+
+  const closes = isSamePoint(orderedWalls[orderedWalls.length - 1].end, orderedWalls[0].start);
+
+  return closes ? orderedWalls : [];
+}
+
+export function roomAreaFromWalls(walls: RoomWall[]) {
+  const orderedWalls = orderConnectedWalls(walls);
+
+  return orderedWalls.length > 0 ? polygonArea(orderedWalls.map((wall) => wall.start)) : 0;
 }
